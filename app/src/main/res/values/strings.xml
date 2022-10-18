@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Direct Message</string>
+    <string name="write_msg">Write message</string>
+</resources>
