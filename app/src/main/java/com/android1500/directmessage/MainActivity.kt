@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Send
@@ -15,7 +16,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,11 +50,16 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MainScreen(){
 
+    val uriHandler = LocalUriHandler.current
+    fun openUrl(url: String) {
+        uriHandler.openUri(url)
+    }
+
     var msg by remember {
         mutableStateOf("")
     }
     val context = LocalContext.current
-    var phoneCode by remember { mutableStateOf(getDefaultPhoneCode(context)) }
+    var phoneCode by remember { mutableStateOf(getDefaultPhoneCode(context).ifBlank { "fr" }) }
     val phoneNumber = remember { mutableStateOf("") }
     var fullPhoneNumber = "$phoneCode${phoneNumber.value}"
     var defaultLang by remember { mutableStateOf(getDefaultLangCode(context)) }
@@ -77,7 +85,7 @@ fun MainScreen(){
                     onClick = { if (!isPackageInstalled(context.packageManager))
                         Toast.makeText(context,"Whatsapp not installed",Toast.LENGTH_SHORT).show()
                     else
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://api.whatsapp.com/send?phone=$fullPhoneNumber&text=$msg")))
+                        openUrl("https://api.whatsapp.com/send?phone=$fullPhoneNumber&text=$msg")
                     }
                 ,modifier = Modifier.padding(vertical = 12.dp),
 
@@ -94,13 +102,19 @@ fun MainScreen(){
                 ) {
 
                     Column(
-                        modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                        modifier = Modifier
+                            .padding(start = 8.dp, end = 8.dp)
+
+
                     ) {
 
                         TogiCountryCodePicker(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surface)
+                                .fillMaxWidth(),
                             pickedCountry = {
                                 phoneCode = it.countryPhoneCode
-                                defaultLang = it.countryCode
+                                defaultLang = it.countryCode.ifBlank { "tr" }
                             },
                             defaultCountry = getLibCountries().single { it.countryCode == defaultLang },
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -111,8 +125,6 @@ fun MainScreen(){
                         )
 
                         fullPhoneNumber = "$phoneCode${phoneNumber.value}"
-
-
 
                     }
 
