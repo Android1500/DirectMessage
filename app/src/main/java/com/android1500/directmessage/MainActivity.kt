@@ -136,19 +136,6 @@ fun MainScreen(){
     }
 }
 
-@Composable
-fun SelectCountryWithCountryCode() {
-    val context = LocalContext.current
-    var phoneCode by remember { mutableStateOf(getDefaultPhoneCode(context)) }
-    val phoneNumber = remember { mutableStateOf("") }
-    val fullPhoneNumber = "$phoneCode${phoneNumber.value}"
-    var defaultLang by remember { mutableStateOf(getDefaultLangCode(context)) }
-    val isValidPhone by remember { mutableStateOf(true) }
-
-
-
-
-}
 
 fun isPackageInstalled(packageManager: PackageManager): Boolean {
     return try {
